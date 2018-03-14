@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block body %}
+    <form method="POST" action="{{ url_for('refresh_from_api') }}">
+        <button id="refreshcharacters" type="submit" class="btn btn-primary">Refresh from API</button>
+        <br><br>
+        <div class="row align-items-start">
+            {% for character in characters %}
+            <div class="col-sm-9" style="border-width: 1px; border-style:solid">
+                <h4>{{ character.Name }}</h4><br>
+                <h5>{{ character.Level }} - {{ character.Race }} - {{ character.Profession }}</h5>
+                <div class="row">
+                    <div class="col-4 col-sm-3">
+                        <b>Armor</b>
+                        {% for eq in equipment %}
+                        {% if eq.Character_ID == character.ID %}
+                        {% if eq.Slot == 'Helm' or eq.Slot == 'Shoulders' or eq.Slot == 'Coat' or eq.Slot == 'Gloves' or eq.Slot == 'Leggings' or eq.Slot == 'Boots' %}
+                        <div style="margin-top: 7px; margin-bottom:3px;border-bottom: 1px solid; overflow:hidden;">
+                            <div class="{{eq.Rarity}}" style="float:left; margin-right:5px;">
+                                <img src="{{eq.Icon}}" />
+                            </div>
+                            <div style="overflow:hidden;">
+                                <b>{{ eq.Name }}</b><br />
+                                {{ eq.Stats }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="col-4 col-sm-3">
+                        <b>Weapons</b>
+                        {% for eq in equipment %}
+                        {% if eq.Character_ID == character.ID %}
+                        {% if eq.Slot == 'WeaponA1' or eq.Slot == 'WeaponA2' or eq.Slot == 'WeaponB1' or eq.Slot == 'WeaponB2' %}
+                        <div style="margin-top: 7px; margin-bottom:3px;border-bottom: 1px solid; overflow:hidden;">
+                            <div class="{{eq.Rarity}}" style="float:left; margin-right:5px;">
+                                <img src="{{eq.Icon}}" />
+                            </div>
+                            <div style="overflow:hidden;">
+                                <b>{{ eq.Name }}</b><br />
+                                {{ eq.Stats }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="col-4 col-sm-3">
+                        <b>Trinkets</b>
+                        {% for eq in equipment %}
+                        {% if eq.Character_ID == character.ID %}
+                        {% if eq.Slot == 'Backpack' or eq.Slot == 'Accessory1' or eq.Slot == 'Accessory2' or eq.Slot == 'Amulet' or eq.Slot == 'Ring1' or eq.Slot == 'Ring2' %}
+                        <div style="margin-top: 7px; margin-bottom:3px;border-bottom: 1px solid; overflow:hidden;">
+                            <div class="{{eq.Rarity}}" style="float:left; margin-right:5px;">
+                                <img src="{{eq.Icon}}" />
+                            </div>
+                            <div style="overflow:hidden;">
+                                <b>{{ eq.Name }}</b><br />
+                                {{ eq.Stats }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,1 @@
+from .gw2chars import app

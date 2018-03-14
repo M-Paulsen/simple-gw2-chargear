@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+<form method="POST" action="{{ url_for('show_accounts') }}">
+    <select name="accounts">
+        {% for account in accounts %}
+            <option value="{{ account.ID }}">{{ account.Account_ID }}</option>
+        {% else %}
+            <option>Nothing here</option>
+        {% endfor %}
+    </select>
+    <button id="selectaccount" type="submit" class="btn btn-primary">Select</button>
+</form>
+{% endblock %}
