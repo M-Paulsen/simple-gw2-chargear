@@ -139,6 +139,7 @@ def RefreshCharacterInfo(accountid):
                     db.execute("UPDATE Equipment SET NAME = ?, LEVEL = ?, Rarity = ?, ICON = ?, STATS = ? WHERE CHARACTER_ID = ? AND EQUIPMENT_ID = ?", [equipitem['name'],equipitem['level'], equipitem['rarity'], equipitem['icon'], statformatted[:-2], character_id, equipitem['id']])
                 else:
                     db.execute("UPDATE Equipment SET NAME = ?, LEVEL = ?, Rarity = ?, ICON = ? WHERE CHARACTER_ID = ? AND EQUIPMENT_ID = ?", [equipitem['name'],equipitem['level'], equipitem['rarity'], equipitem['icon'], character_id, equipitem['id']])
+                db.commit()                    
 
 
 if __name__ == '__main__':
