@@ -1,0 +1,13 @@
+[Unit]
+Description=uWSGI instance to serve GW2Chars
+After=network.target
+
+[Service]
+User=root
+Group=www-data
+WorkingDirectory=/opt/simple-gw2-chargear/gw2chars
+Environment="PATH=/opt/simple-gw2-chargear/gw2charsenv/bin"
+ExecStart=/opt/simple-gw2-chargear/gw2charsenv/bin/uwsgi --ini gw2chars.ini
+
+[Install]
+WantedBy=multi-user.target

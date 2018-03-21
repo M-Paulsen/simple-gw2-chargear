@@ -1,3 +1,0 @@
-graft gw2chars/templates
-graft gw2chars/static
-include gw2chars/schema.sql
