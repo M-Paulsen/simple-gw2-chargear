@@ -22,7 +22,7 @@ CREATE TABLE Equipment(
     ID INTEGER PRIMARY KEY,
     Account_ID INT,
     Character_ID INT,
-    Equipment_ID INT,
+    API_Equipment_ID INT,
     Slot CHAR(50),
     Name CHAR(250),
     Level INT,
@@ -45,6 +45,7 @@ CREATE TABLE EquipmentUpgrades(
     ID INTEGER PRIMARY KEY,
     Account_ID INT,
     Equipment_ID INT,
+    API_Equipment_ID INT,
     Upgrade_ID INT,
     Name CHAR(100)
 );
