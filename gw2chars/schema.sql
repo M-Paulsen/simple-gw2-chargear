@@ -28,6 +28,7 @@ CREATE TABLE Equipment(
     Level INT,
     Rarity CHAR(50),
     Icon CHAR(500),
+    Skin_ID INT,
     Stats CHAR(500),
     StatType_ID INT
 );

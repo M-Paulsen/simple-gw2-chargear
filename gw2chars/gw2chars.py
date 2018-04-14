@@ -107,6 +107,11 @@ def GetUpgradeInfo(upgradeIDs):
     j = json.loads(r.text)
     return j
 
+def GetSkinInfo(skinIDs):
+    r = requests.get(url='https://api.guildwars2.com/v2/skins?ids=' + skinIDs)
+    j = json.loads(r.text)
+    return j
+
 def RefreshCharacterInfo(accountid):
     CleanDatabase(accountid)
     db = get_db()
@@ -141,6 +146,9 @@ def RefreshCharacterInfo(accountid):
             if "upgrades" in equipment:
                 for upgrade in equipment['upgrades']:
                     db.execute("INSERT INTO EquipmentUpgrades (Account_ID, API_Equipment_ID, Equipment_ID, Upgrade_ID) VALUES (?, ?, ?, ?)", [accountid, str(equipment['id']), last_equipment_id, str(upgrade)])
+            
+            if "skin" in equipment:
+                db.execute("UPDATE Equipment SET Skin_ID = ? WHERE ID = ?", [str(equipment['skin']), str(last_equipment_id)])
 
         db.commit()
 
@@ -176,6 +184,15 @@ def RefreshCharacterInfo(accountid):
 
     for upgradeinfo in upgrades:
         db.execute("UPDATE EquipmentUpgrades SET Name = ? WHERE Account_ID = ? AND Upgrade_ID = ?", [upgradeinfo['name'], accountid, upgradeinfo['id']])
+    db.commit()
+
+    cur = db.execute('SELECT GROUP_CONCAT(DISTINCT Skin_ID) FROM Equipment WHERE Skin_ID IS NOT NULL AND Account_ID = ?', [accountid])
+    skinIDs = cur.fetchone()[0]
+
+    skins = GetSkinInfo(skinIDs)
+
+    for skin in skins:
+        db.execute('UPDATE Equipment SET Name = ?, Icon = ? WHERE Skin_ID = ?', [skin['name'], skin['icon'], skin['id']])
     db.commit()
 
 
