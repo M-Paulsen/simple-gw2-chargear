@@ -58,7 +58,7 @@ def show_characters():
         db = get_db()
         cur = db.execute('SELECT ID, Name, Level, Race, Profession FROM Characters WHERE Account_ID = ? ORDER BY Name', [acc])
         chars = cur.fetchall()
-        cur = db.execute('SELECT e.Character_ID, e.Equipment_ID, e.Slot, e.Name, e.Level, e.Rarity, e.Icon, e.Stats, st.StatType, (SELECT GROUP_CONCAT(eu.Name) FROM EquipmentUpgrades eu where eu.Equipment_ID = e.Equipment_ID) AS Upgrades FROM Equipment e INNER JOIN StatTypes st ON e.StatType_ID = st.Stat_ID WHERE e.Account_ID = ?', [acc])
+        cur = db.execute('SELECT e.Character_ID, e.Equipment_ID, e.Slot, e.Name, e.Level, e.Rarity, e.Icon, e.Stats, st.StatType, (SELECT GROUP_CONCAT(eu.Name) FROM EquipmentUpgrades eu WHERE eu.Equipment_ID = e.Equipment_ID) AS Upgrades FROM Equipment e INNER JOIN StatTypes st ON e.StatType_ID = st.Stat_ID AND st.Account_ID = e.Account_ID WHERE e.Account_ID = ?', [acc])
         equips = cur.fetchall()
         return render_template('show_characters.html', characters=chars, equipment=equips)
     else:
