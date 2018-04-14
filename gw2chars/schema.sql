@@ -28,5 +28,23 @@ CREATE TABLE Equipment(
     Level INT,
     Rarity CHAR(50),
     Icon CHAR(500),
-    Stats CHAR(500)
+    Stats CHAR(500),
+    StatType_ID INT
+);
+
+DROP TABLE IF EXISTS StatTypes;
+CREATE TABLE StatTypes(
+    ID INTEGER PRIMARY KEY,
+    Account_ID INT,
+    Stat_ID INT,
+    StatType CHAR(50)
+);
+
+DROP TABLE IF EXISTS EquipmentUpgrades;
+CREATE TABLE EquipmentUpgrades(
+    ID INTEGER PRIMARY KEY,
+    Account_ID INT,
+    Equipment_ID INT,
+    Upgrade_ID INT,
+    Name CHAR(100)
 );

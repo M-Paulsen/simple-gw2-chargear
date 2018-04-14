@@ -58,7 +58,7 @@ def show_characters():
         db = get_db()
         cur = db.execute('SELECT ID, Name, Level, Race, Profession FROM Characters WHERE Account_ID = ? ORDER BY Name', [acc])
         chars = cur.fetchall()
-        cur = db.execute('SELECT Character_ID, Equipment_ID, Slot, Name, Level, Rarity, Icon, Stats FROM Equipment WHERE Account_ID = ?', [acc])
+        cur = db.execute('SELECT e.Character_ID, e.Equipment_ID, e.Slot, e.Name, e.Level, e.Rarity, e.Icon, e.Stats, st.StatType, (SELECT GROUP_CONCAT(eu.Name) FROM EquipmentUpgrades eu where eu.Equipment_ID = e.Equipment_ID) AS Upgrades FROM Equipment e INNER JOIN StatTypes st ON e.StatType_ID = st.Stat_ID WHERE e.Account_ID = ?', [acc])
         equips = cur.fetchall()
         return render_template('show_characters.html', characters=chars, equipment=equips)
     else:
@@ -78,6 +78,8 @@ def CleanDatabase(accountid):
     db = get_db()
     db.execute("DELETE FROM Characters WHERE Account_ID = ?", [accountid])
     db.execute("DELETE FROM Equipment WHERE Account_ID = ?", [accountid])
+    db.execute("DELETE FROM StatTypes WHERE Account_ID = ?", [accountid])
+    db.execute("DELETE FROM EquipmentUpgrades WHERE Account_ID = ?", [accountid])
     db.commit()
 
 def GetCharacters(apikey):
@@ -90,8 +92,18 @@ def GetCharacterInfo(apikey, characterName):
     characterinfo = dict(race=j['race'],profession=j['profession'],level=j['level'],equipment=j['equipment'],created=j['created'])
     return characterinfo
 
-def GetEquipmentInfo( equipmentIDs):
+def GetEquipmentInfo(equipmentIDs):
     r = requests.get(url='https://api.guildwars2.com/v2/items?ids=' + equipmentIDs)
+    j = json.loads(r.text)
+    return j
+
+def GetEquipmentStatType(statIDs):
+    r = requests.get(url='https://api.guildwars2.com/v2/itemstats?ids=' + statIDs)
+    j = json.loads(r.text)
+    return j
+
+def GetUpgradeInfo(upgradeIDs):
+    r = requests.get(url='https://api.guildwars2.com/v2/items?ids=' + upgradeIDs)
     j = json.loads(r.text)
     return j
 
@@ -116,12 +128,17 @@ def RefreshCharacterInfo(accountid):
 
         for equipment in gw2characterinfo['equipment']:
             equipment_ids = equipment_ids + str(equipment['id']) + ','
+            
+            db.execute("INSERT INTO Equipment (Account_ID, Character_ID, Equipment_ID, Slot) VALUES (?, ?, ?, ?)", [accountid, character_id, str(equipment['id']), str(equipment['slot'])])
+
             if "stats" in equipment:
                 statraw = equipment['stats']['attributes']
                 statformatted = ', '.join("{!s} {!r}".format(key, val) for (key,val) in statraw.items())
-                db.execute("INSERT INTO Equipment (Account_ID, Character_ID, Equipment_ID, Slot, Stats) VALUES (?, ?, ?, ?, ?)", [accountid, character_id, str(equipment['id']), str(equipment['slot']), statformatted])
-            else:
-                db.execute("INSERT INTO Equipment (Account_ID, Character_ID, Equipment_ID, Slot) VALUES (?, ?, ?, ?)", [accountid, character_id, str(equipment['id']), str(equipment['slot'])])
+                db.execute("UPDATE Equipment SET Stats = ?, StatType_ID = ? WHERE Account_ID = ? AND Character_ID = ? AND Equipment_ID = ?", [statformatted, str(equipment['stats']['id']), accountid, character_id, str(equipment['id'])])
+
+            if "upgrades" in equipment:
+                for upgrade in equipment['upgrades']:
+                    db.execute("INSERT INTO EquipmentUpgrades (Account_ID, Equipment_ID, Upgrade_ID) VALUES (?, ?, ?)", [accountid, str(equipment['id']), str(upgrade)])
 
         db.commit()
 
@@ -136,10 +153,28 @@ def RefreshCharacterInfo(accountid):
                         stattemp = ' '.join("{}".format(val) for (key,val) in stat.items())
                         statformatted = statformatted + stattemp + ', '
                         
-                    db.execute("UPDATE Equipment SET NAME = ?, LEVEL = ?, Rarity = ?, ICON = ?, STATS = ? WHERE CHARACTER_ID = ? AND EQUIPMENT_ID = ?", [equipitem['name'],equipitem['level'], equipitem['rarity'], equipitem['icon'], statformatted[:-2], character_id, equipitem['id']])
+                    db.execute("UPDATE Equipment SET NAME = ?, LEVEL = ?, Rarity = ?, ICON = ?, STATS = ?, StatType_ID = ? WHERE CHARACTER_ID = ? AND EQUIPMENT_ID = ?", [equipitem['name'],equipitem['level'], equipitem['rarity'], equipitem['icon'], statformatted[:-2], equipitem['details']['infix_upgrade']['id'], character_id, equipitem['id']])
                 else:
                     db.execute("UPDATE Equipment SET NAME = ?, LEVEL = ?, Rarity = ?, ICON = ? WHERE CHARACTER_ID = ? AND EQUIPMENT_ID = ?", [equipitem['name'],equipitem['level'], equipitem['rarity'], equipitem['icon'], character_id, equipitem['id']])
-                db.commit()                    
+                db.commit()
+
+    cur = db.execute('SELECT GROUP_CONCAT(DISTINCT StatType_ID) FROM Equipment WHERE Account_ID = ?', [accountid])
+    statTypeIDs = cur.fetchone()[0]
+
+    stattypes = GetEquipmentStatType(statTypeIDs)
+
+    for stattype in stattypes:
+        db.execute("INSERT INTO StatTypes (Account_ID, Stat_ID, StatType) VALUES (?, ?, ?)", [accountid, stattype['id'], stattype['name']])
+    db.commit()
+
+    cur = db.execute('SELECT GROUP_CONCAT(DISTINCT Upgrade_ID) FROM EquipmentUpgrades WHERE Account_ID = ?', [accountid])
+    upgradeIDs = cur.fetchone()[0]
+
+    upgrades = GetUpgradeInfo(upgradeIDs)
+
+    for upgradeinfo in upgrades:
+        db.execute("UPDATE EquipmentUpgrades SET Name = ? WHERE Account_ID = ? AND Upgrade_ID = ?", [upgradeinfo['name'], accountid, upgradeinfo['id']])
+    db.commit()
 
 
 if __name__ == '__main__':

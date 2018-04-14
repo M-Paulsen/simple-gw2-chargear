@@ -9,7 +9,7 @@
                 <h4>{{ character.Name }}</h4><br>
                 <h5>{{ character.Level }} - {{ character.Race }} - {{ character.Profession }}</h5>
                 <div class="row">
-                    <div class="col-4 col-sm-3">
+                    <div class="col-4">
                         <b>Armor</b>
                         {% for eq in equipment %}
                         {% if eq.Character_ID == character.ID %}
@@ -19,15 +19,16 @@
                                 <img src="{{eq.Icon}}" />
                             </div>
                             <div style="overflow:hidden;">
-                                <b>{{ eq.Name }}</b><br />
-                                {{ eq.Stats }}
+                                <b>{{ eq.Name }} - {{ eq.Level }} - {{eq.StatType}}</b><br />
+                                {{ eq.Stats }}<br>
+                                {{ eq.Upgrades }}
                             </div>
                         </div>
                         {% endif %}
                         {% endif %}
                         {% endfor %}
                     </div>
-                    <div class="col-4 col-sm-3">
+                    <div class="col-4">
                         <b>Weapons</b>
                         {% for eq in equipment %}
                         {% if eq.Character_ID == character.ID %}
@@ -37,15 +38,35 @@
                                 <img src="{{eq.Icon}}" />
                             </div>
                             <div style="overflow:hidden;">
-                                <b>{{ eq.Name }}</b><br />
+                                <b>{{ eq.Name }} - {{ eq.Level }} - {{eq.StatType}}</b><br />
                                 {{ eq.Stats }}
+                                <br>
+                                {{ eq.Upgrades }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+                        <b>Underwater Gear</b>
+                        {% for eq in equipment %}
+                        {% if eq.Character_ID == character.ID %}
+                        {% if eq.Slot == 'HelmAquatic' or eq.Slot == 'WeaponAquaticA' or eq.Slot == 'WeaponAquaticB' %}
+                        <div style="margin-top: 7px; margin-bottom:3px;border-bottom: 1px solid; overflow:hidden;">
+                            <div class="{{eq.Rarity}}" style="float:left; margin-right:5px;">
+                                <img src="{{eq.Icon}}" />
+                            </div>
+                            <div style="overflow:hidden;">
+                                <b>{{ eq.Name }} - {{ eq.Level }} - {{eq.StatType}}</b><br />
+                                {{ eq.Stats }}
+                                <br>
+                                {{ eq.Upgrades }}
                             </div>
                         </div>
                         {% endif %}
                         {% endif %}
                         {% endfor %}
                     </div>
-                    <div class="col-4 col-sm-3">
+                    <div class="col-4">
                         <b>Trinkets</b>
                         {% for eq in equipment %}
                         {% if eq.Character_ID == character.ID %}
@@ -55,8 +76,10 @@
                                 <img src="{{eq.Icon}}" />
                             </div>
                             <div style="overflow:hidden;">
-                                <b>{{ eq.Name }}</b><br />
+                                <b>{{ eq.Name }} - {{ eq.Level }} - {{eq.StatType}}</b><br />
                                 {{ eq.Stats }}
+                                <br>
+                                {{ eq.Upgrades }}
                             </div>
                         </div>
                         {% endif %}
